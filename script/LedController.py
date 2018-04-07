@@ -26,15 +26,23 @@ LED_DMA = 10
 
 class LedController:
     def __init__(self):
+        print('Init LED strip controller...')
         self.strip1 = Adafruit_NeoPixel(LED_1_COUNT, LED_1_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_1_CHANNEL)
         self.strip2 = Adafruit_NeoPixel(LED_2_COUNT, LED_2_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_1_CHANNEL)
 
     def begin(self):
         print("WS2812B strip begin...")
+        self.strip1.begin()
+        self.strip2.begin()
+        self.colorChange(self.strip1, Color(255, 255, 255))
+        self.colorChange(self.strip2, Color(255, 255, 255))
 
     def update(self, data):
         print('change to ' + data)
         r, g, b = data.split('-')
-        for i in range(self.strip1.numPixels()):
-            self.strip1.setPixelColor(i, Color(r, g, b))
-            self.strip1.show()
+        self.colorChange(self.strip1, Color(int(r), int(g), int(b)))
+
+    def colorChange(self, strip, color):
+        for i in range(strip.numPixels()):
+            strip.setPixelColor(i, color)
+        strip.show()
