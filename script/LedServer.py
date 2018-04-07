@@ -13,7 +13,7 @@ class LedRequestHandler(BaseRequestHandler):
         print('Got connection from ', self.client_address)
         while True:
             data = self.request.recv(9182)
-            if not msg:
+            if not data:
                 break
             # print(msg.decode())
             self.controller.update(data.decode())
