@@ -1,5 +1,6 @@
-import time
 from neopixel import *
+import json
+from Logo import Logo
 
 # LED strip configuration
 LED_1_COUNT = 119
@@ -27,22 +28,23 @@ LED_DMA = 10
 class LedController:
     def __init__(self):
         print('Init LED strip controller...')
-        self.strip1 = Adafruit_NeoPixel(LED_1_COUNT, LED_1_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_1_CHANNEL)
-        self.strip2 = Adafruit_NeoPixel(LED_2_COUNT, LED_2_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_1_CHANNEL)
+        leftStrip1 = Adafruit_NeoPixel(LED_1_COUNT, LED_1_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_1_CHANNEL)
+        leftStrip2 = Adafruit_NeoPixel(LED_2_COUNT, LED_2_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_2_CHANNEL)
+        rightStrip1 = Adafruit_NeoPixel(LED_3_COUNT, LED_3_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_3_CHANNEL)
+        rightStrip2 = Adafruit_NeoPixel(LED_4_COUNT, LED_4_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_4_CHANNEL)
+        self.leftLogo = Logo([leftStrip1, leftStrip2])
+        self.rightLogo = Logo([rightStrip1, rightStrip2])
 
     def begin(self):
         print("WS2812B strip begin...")
-        self.strip1.begin()
-        self.strip2.begin()
-        self.colorChange(self.strip1, Color(255, 255, 255))
-        self.colorChange(self.strip2, Color(255, 255, 255))
+        self.leftLogo.begin()
+        self.rightLogo.begin()
 
-    def update(self, data):
-        print('change to ' + data)
-        r, g, b = data.split('-')
-        self.colorChange(self.strip1, Color(int(r), int(g), int(b)))
-
-    def colorChange(self, strip, color):
-        for i in range(strip.numPixels()):
-            strip.setPixelColor(i, color)
-        strip.show()
+    def receive(self, data):
+        print('recived json to ' + data)
+        parsed_json = json.loads(data)
+        for logo in parsed_json:
+            if logo['id'] == 1:
+                self.leftLogo.update(logo)
+            elif logo['id'] == 2:
+                self.rightLogo.update(logo)
